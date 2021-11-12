@@ -7,6 +7,7 @@ function index() {
     <div>
       <Header />
       <Menu />
+
       <div className="container">
         <div className="row">
           <div className="col margintopbottom">
