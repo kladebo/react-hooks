@@ -1,10 +1,10 @@
-import React, {
+import {
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   useState,
-  useCallback,
-  useMemo,
 } from 'react';
 
 import { Header } from './Header';
@@ -12,7 +12,7 @@ import { Menu } from './Menu';
 import SpeakerData from './SpeakerData';
 import SpeakerDetail from './SpeakerDetail';
 import { ConfigContext } from './App';
-import speakersReducer from './SpeakersReducer';
+import speakersReducer from './speakersReducer';
 
 const Speakers = ({}) => {
   const [speakingSaturday, setSpeakingSaturday] = useState(true);
@@ -35,7 +35,6 @@ const Speakers = ({}) => {
       const speakerListServerFilter = SpeakerData.filter(({ sat, sun }) => {
         return (speakingSaturday && sat) || (speakingSunday && sun);
       });
-      //setSpeakerList(speakerListServerFilter);
       dispatch({
         type: 'setSpeakerList',
         data: speakerListServerFilter,
@@ -49,6 +48,17 @@ const Speakers = ({}) => {
   const handleChangeSaturday = () => {
     setSpeakingSaturday(!speakingSaturday);
   };
+  const handleChangeSunday = () => {
+    setSpeakingSunday(!speakingSunday);
+  };
+  const heartFavoriteHandler = useCallback((e, favoriteValue) => {
+    e.preventDefault();
+    const sessionId = parseInt(e.target.attributes['data-sessionid'].value);
+    dispatch({
+      type: favoriteValue === true ? 'favorite' : 'unfavorite',
+      sessionId,
+    });
+  }, []);
 
   const newSpeakerList = useMemo(
     () =>
@@ -66,24 +76,10 @@ const Speakers = ({}) => {
           }
           return 0;
         }),
-    [speakingSunday, speakingSaturday, speakerList],
+    [speakingSaturday, speakingSunday, speakerList],
   );
 
   const speakerListFiltered = isLoading ? [] : newSpeakerList;
-
-  const handleChangeSunday = () => {
-    setSpeakingSunday(!speakingSunday);
-  };
-
-  const heartFavoriteHandler = useCallback((e, favoriteValue) => {
-    e.preventDefault();
-    const sessionId = parseInt(e.target.attributes['data-sessionid'].value);
-
-    dispatch({
-      type: favoriteValue === true ? 'favorite' : 'unfavorite',
-      sessionId,
-    });
-  }, []);
 
   if (isLoading) return <div>Loading...</div>;
 
