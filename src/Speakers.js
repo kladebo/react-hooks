@@ -1,17 +1,26 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 
 import { Header } from './Header';
 import { Menu } from './Menu';
 import SpeakerData from './SpeakerData';
 import SpeakerDetail from './SpeakerDetail';
 import { ConfigContext } from './App';
+import speakersReducer from './SpeakersReducer';
 
 const Speakers = ({}) => {
   const [speakingSaturday, setSpeakingSaturday] = useState(true);
   const [speakingSunday, setSpeakingSunday] = useState(true);
 
-  const [speakerList, setSpeakerList] = useState([]);
+  // CODE ONLY LEFT HERE COMMENTED OUT FOR TEACH PURPOSES.
+  // BEST PRACTICE WOULD BE TO REMOVE COMMENTED CODE OUT AS IT
+  //   WOULD BE IN SOURCE CONTROL AND NOT NECESSARY.
+
+  //const [speakerList, setSpeakerList] = useState([]);
+
+  const [speakerList, dispatch] = useReducer(speakersReducer, []);
+
   const [isLoading, setIsLoading] = useState(true);
+
   const context = useContext(ConfigContext);
 
   useEffect(() => {
@@ -21,21 +30,23 @@ const Speakers = ({}) => {
         resolve();
       }, 1000);
     }).then(() => {
-      setSpeakerList(SpeakerData);
       setIsLoading(false);
+      const speakerListServerFilter = SpeakerData.filter(({ sat, sun }) => {
+        return (speakingSaturday && sat) || (speakingSunday && sun);
+      });
+      //setSpeakerList(speakerListServerFilter);
+      dispatch({
+        type: 'setSpeakerList',
+        data: speakerListServerFilter,
+      });
     });
-
     return () => {
       console.log('cleanup');
     };
-  }, []);
+  }, []); // [speakingSunday, speakingSaturday]);
 
   const handleChangeSaturday = () => {
     setSpeakingSaturday(!speakingSaturday);
-  };
-
-  const handleChangeSunday = () => {
-    setSpeakingSunday(!speakingSunday);
   };
 
   const speakerListFiltered = isLoading
@@ -55,17 +66,18 @@ const Speakers = ({}) => {
           return 0;
         });
 
+  const handleChangeSunday = () => {
+    setSpeakingSunday(!speakingSunday);
+  };
+
   const heartFavoriteHandler = (e, favoriteValue) => {
     e.preventDefault();
     const sessionId = parseInt(e.target.attributes['data-sessionid'].value);
-    setSpeakerList(
-      speakerList.map((item) => {
-        if (item.id === sessionId) {
-          return { ...item, favorite: favoriteValue };
-        }
-        return item;
-      }),
-    );
+
+    dispatch({
+      type: favoriteValue === true ? 'favorite' : 'unfavorite',
+      sessionId,
+    });
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -75,7 +87,7 @@ const Speakers = ({}) => {
       <Header />
       <Menu />
       <div className="container">
-        <div className="btn-toolbar margintopbottom5 chekbox-bigger">
+        <div className="btn-toolbar  margintopbottom5 checkbox-bigger">
           {context.showSpeakerSpeakingDays === false ? null : (
             <div className="hide">
               <div className="form-check-inline">
@@ -112,10 +124,10 @@ const Speakers = ({}) => {
                     key={id}
                     id={id}
                     favorite={favorite}
+                    onHeartFavoriteHandler={heartFavoriteHandler}
                     firstName={firstName}
                     lastName={lastName}
                     bio={bio}
-                    onHeartFavoriteHandler={heartFavoriteHandler}
                   />
                 );
               },

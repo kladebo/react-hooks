@@ -18,6 +18,7 @@ const SpeakerDetail = ({
       />
       <div className="card-body">
         <h4 className="card-title">
+          ${favorite}
           <button
             data-sessionid={id}
             className={favorite ? 'heartredbutton' : 'heartdarkbutton'}

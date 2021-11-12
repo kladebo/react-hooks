@@ -10,6 +10,7 @@ const pageToShow = (pageName) => {
   return <div>Not Found</div>;
 };
 const configValue = {
+  showSignMeUp: true,
   showSpeakerSpeakingDays: true,
 };
 const App = ({ pageName }) => {
