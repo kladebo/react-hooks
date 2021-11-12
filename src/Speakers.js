@@ -12,7 +12,8 @@ const Speakers = ({}) => {
 
   const context = useContext(ConfigContext);
 
-  const { isLoading, speakerList, dispatch } = useSpeakerDataManager();
+  const { isLoading, speakerList, toggleSpeakerFavorite } =
+    useSpeakerDataManager();
 
   const handleChangeSaturday = () => {
     setSpeakingSaturday(!speakingSaturday);
@@ -22,13 +23,14 @@ const Speakers = ({}) => {
     setSpeakingSunday(!speakingSunday);
   };
 
-  const heartFavoriteHandler = useCallback((e, favoriteValue) => {
+  const heartFavoriteHandler = useCallback((e, speakerRecord) => {
     e.preventDefault();
-    const sessionId = parseInt(e.target.attributes['data-sessionid'].value);
-    dispatch({
-      type: favoriteValue === true ? 'favorite' : 'unfavorite',
-      id: sessionId,
-    });
+    // const sessionId = parseInt(e.target.attributes['data-sessionid'].value);
+    toggleSpeakerFavorite(speakerRecord);
+    // dispatch({
+    //   type: favoriteValue === true ? 'favorite' : 'unfavorite',
+    //   id: sessionId,
+    // });
   }, []);
 
   const newSpeakerList = useMemo(
@@ -89,21 +91,15 @@ const Speakers = ({}) => {
         </div>
         <div className="row">
           <div className="card-deck">
-            {speakerListFiltered.map(
-              ({ id, firstName, lastName, bio, favorite }) => {
-                return (
-                  <SpeakerDetail
-                    key={id}
-                    id={id}
-                    favorite={favorite}
-                    onHeartFavoriteHandler={heartFavoriteHandler}
-                    firstName={firstName}
-                    lastName={lastName}
-                    bio={bio}
-                  />
-                );
-              },
-            )}
+            {speakerListFiltered.map((speakerRecord) => {
+              return (
+                <SpeakerDetail
+                  key={speakerRecord.id}
+                  speakerRecord={speakerRecord}
+                  onHeartFavoriteHandler={heartFavoriteHandler}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
