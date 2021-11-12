@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+  useCallback,
+} from 'react';
 
 import { Header } from './Header';
 import { Menu } from './Menu';
@@ -10,12 +16,6 @@ import speakersReducer from './SpeakersReducer';
 const Speakers = ({}) => {
   const [speakingSaturday, setSpeakingSaturday] = useState(true);
   const [speakingSunday, setSpeakingSunday] = useState(true);
-
-  // CODE ONLY LEFT HERE COMMENTED OUT FOR TEACH PURPOSES.
-  // BEST PRACTICE WOULD BE TO REMOVE COMMENTED CODE OUT AS IT
-  //   WOULD BE IN SOURCE CONTROL AND NOT NECESSARY.
-
-  //const [speakerList, setSpeakerList] = useState([]);
 
   const [speakerList, dispatch] = useReducer(speakersReducer, []);
 
@@ -70,7 +70,7 @@ const Speakers = ({}) => {
     setSpeakingSunday(!speakingSunday);
   };
 
-  const heartFavoriteHandler = (e, favoriteValue) => {
+  const heartFavoriteHandler = useCallback((e, favoriteValue) => {
     e.preventDefault();
     const sessionId = parseInt(e.target.attributes['data-sessionid'].value);
 
@@ -78,7 +78,7 @@ const Speakers = ({}) => {
       type: favoriteValue === true ? 'favorite' : 'unfavorite',
       sessionId,
     });
-  };
+  }, []);
 
   if (isLoading) return <div>Loading...</div>;
 
